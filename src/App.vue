@@ -18,6 +18,7 @@
 //js
 import axios from "axios";
 import { ref, reactive, onMounted } from "vue";
+import { Chart } from "chart.js";
 
 const url = "https://opendata.resas-portal.go.jp/api/v1/prefectures";
 const url2 =
@@ -46,6 +47,9 @@ const onClick = async (event, prefCode) => {
   }
 };
 //クリックしたときにそれぞれの都道府県のPrefCodeを取る。
+
+var myLinChart = new Chart()
+
 
 onMounted(async () => {
   await getData();
