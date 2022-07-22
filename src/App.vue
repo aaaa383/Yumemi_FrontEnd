@@ -1,38 +1,62 @@
-
 <template>
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <li v-for="(item, index) in items">
+      <input
+        type="checkbox"
+        id="checked"
+        v-model="check_box"
+        @input="onClick($event, item.prefCode)"
+      />
+      <label for="checked"
+        >{{ index }}-{{ item.prefCode }}-{{ item.prefName }}</label
+      >
+    </li>
   </div>
-  <HelloWorld msg="Vite + Vue" />
-  aaa
-
 </template>
 
-
-
-
 <script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
-// import  Chart  from ""
+//js
+import axios from "axios";
+import { ref, reactive, onMounted } from "vue";
+import { Chart } from "chart.js";
+
+const url = "https://opendata.resas-portal.go.jp/api/v1/prefectures";
+const url2 =
+  "https://opendata.resas-portal.go.jp/api/v1/population/composition/perYear?cityCode=11362&prefCode=";
+const headers = {
+  "X-Api-Key": "y3y97v7GaGN3GQLKCKxaaAXeKNxmLVZb76UWyV1O",
+};
+
+const getData = async () => {
+  console.log("aaa");
+  let { data } = await axios.get(url, { headers });
+  console.log(data);
+  items.value = data.result;
+};
+
+const items = ref([]);
+
+const onClick = async (event, prefCode) => {
+  if (event.target.checked) {
+    // console.log(test)
+    // let {data}  = await axios.get(url, {headers});
+    const URL_population = url2 + prefCode;
+    let data2 = await axios.get(URL_population, { headers });
+    console.log(data2);
+    console.log();
+  }
+};
+//クリックしたときにそれぞれの都道府県のPrefCodeを取る。
+
+var myLinChart = new Chart()
+
+
+onMounted(async () => {
+  await getData();
+  // onClick();
+});
 </script>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
+/* CSS */
 </style>
