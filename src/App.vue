@@ -4,36 +4,23 @@
       <input
         type="checkbox"
         id="'checked' + index"
-        @input="onClick($event, item.prefCode)"
+        @input="onClick($event, item.prefCode, item.prefName)"
       />
       <label for="'checked' + index"
-        >{{ index }}-{{ item.prefCode }}-{{ item.prefName }}-{{
-          "checked" + index
-        }}</label
-      >
+        >{{ item.prefName }}
+        </label>
     </li>
   </div>
-  <Chart
-
-    :size="{ width: 600, height: 400 }"
-    :data="chartdata"
-    :margin="margin"
-    :direction="direction"
-
-
-  >
-    <template #layers>
-      <Grid strokeDasharray="2,2" />
-      <Line :dataKeys="['year', 'value']" />
-    </template>
-  </Chart>
+  {{ chartdata }}
+  <LineChart :chart-data="chartdata" />
 </template>
 
 <script setup>
 //js
 import axios from "axios";
-import { ref, onMounted, defineComponent } from "vue";
-import { Chart, Grid, Line } from "vue3-charts";
+import { ref, onMounted, defineComponent, toRefs, nextTick } from "vue";
+import { Chart, registerables} from "chart.js";
+import { LineChart } from "vue-chart-3";
 
 const url = "https://opendata.resas-portal.go.jp/api/v1/prefectures";
 const url2 =
@@ -50,40 +37,80 @@ const getData = async () => {
 
 const items = ref([]);
 
-const onClick = async (event, prefCode) => {
-  if (event.target.checked) {
+const onClick = async (event, prefCode, prefName) => {
+  
+  if (event.target.checked == true) {
     // console.log(test)
     // let {data}  = await axios.get(url, {headers});
     const URL_population = url2 + prefCode;
     await axios.get(URL_population, { headers }).then((res) => {
       const pref = res.data.result.data[0].data; //総人口のデータのみ取得
+      const props = {
+        labels: {
+          type: Array,
+          requires: true,
+        },
+        datasets: {
+          type: Object,
+          requires: true,
+        },
+      };
 
-      const tmp_data = {"label": String(prefCode),
-                  "data": []
+      const { labels } = ref(props);
+
+      const year = [];
+      const value = [];
+      const namelabel = prefName;
+
+      //それぞれに格納している
+      pref.forEach((element) => {
+        year.push(element.year);
+        value.push(element.value);
+      });
+
+      const pref_data = (
+        {
+          label: namelabel,
+          data: value,
+        }
+      );     
+
+      all_data.value.push(pref_data);
+
+
+      const data3 = {
+        labels: year,
+        datasets: all_data.value
+        };
+        chartdata.value=data3;
+        console.log(all_data.value)
+      });
+  }else{   
+    const index = all_data.value.findIndex(el => el.label === prefName);
+    console.log( index,prefName );
+    await all_data.value.splice(index, 1);
+    console.log(all_data.value);
+    
+
+    await nextTick(()=>{
+       const data3 = {
+        labels: [...chartdata.value.labels],
+        datasets: all_data.value
+        };
+
+        chartdata.value=data3;
+        console.log(chartdata.value)
       }
+  )
 
-      pref.forEach(element => {
-          tmp_data.data.push(element.value);
-        });
-
-      datasets.value.push(tmp_data)
-      console.log(datasets.value)
-      console.log("chartdata:", chartdata.value)
-    });
+   
   }
-};
 
-// const labels = ref([])
-// const data =ref([])
-// const datasets = ref([
-//   {data: [1,2,3]},
-//   {labels: [1,2,3]}
-// ])
+  };
 
-const datasets = ref([]);
+const all_data = ref([]);
+const year = [];
 
-
-const items2 = ref([[]]);
 onMounted(async () => {
   await getData();
 });
@@ -91,10 +118,10 @@ onMounted(async () => {
 const name = defineComponent("myChart");
 const components = {
   Chart,
-  Grid,
-  Line,
+  // Grid,
+  // Line,
 };
-const chartdata = ref(datasets);
+const chartdata = ref({});
 const direction = ref("horizontal");
 const margin = ref({
   left: 0,
@@ -102,11 +129,13 @@ const margin = ref({
   right: 20,
   bottom: 0,
 });
+
 </script>
 
-
+<script>
+Chart.register(...registerables);
+</script>
 
 <style scoped>
 /* CSS */
 </style>
-9
