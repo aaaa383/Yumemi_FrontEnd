@@ -1,5 +1,6 @@
 <template>
-  <div id="mycheckbox">
+<h1><font size="5">フロント開発課題</font></h1>
+  <div2 id="mycheckbox">
     <p v-for="(item, index) in items">
       <input
         type="checkbox"
@@ -8,9 +9,9 @@
       />
       <label for="'checked' + index">{{ item.prefName }} </label>
     </p>
-  </div>
+  </div2>
   <!-- {{ chartdata }} -->
-  <LineChart ref="chart" :chart-data="chartdata" />
+  <LineChart ref="chart"  :chart-data="chartdata" />
 </template>
 
 <script setup>
@@ -32,6 +33,7 @@ const getData = async () => {
   // console.log(data);
   items.value = data.result;
 };
+
 
 const items = ref([]);
 
@@ -73,6 +75,13 @@ const onClick = async (event, prefCode, prefName) => {
       const pref_data = {
         label: namelabel,
         data: value,
+        borderColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)',
+                'rgba(75, 192, 192, 0.5)',
+                'rgba(153, 102, 255, 0.5)'
+            ],
       };
 
       all_data.value.push(pref_data);
@@ -107,6 +116,7 @@ const components = {
 };
 const chartdata = ref({});
 const direction = ref("horizontal");
+
 </script>
 
 <script>
@@ -114,12 +124,32 @@ Chart.register(...registerables);
 </script>
 
 <style scoped>
+
+
+h1{
+  padding: 0.4em;
+  line-height: 20px;
+  margin: 0.1em ;
+  text-align: left; 
+  color: #494949;
+  background:#fef5ec;
+  border-left: solid 5px #ffaf58;
+}
+
+
 #mycheckbox {
   display: flex;
   flex-wrap: wrap;
+  /* background-color:#fef0e2; */
+  border: solid;
+  border-color: #fed9b1;
+  border-radius: 8px;
 }
 
 #mycheckbox div {
   width: 25%;
 }
+
+
+
 </style>
